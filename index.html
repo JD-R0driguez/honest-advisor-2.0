@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Polygon Ticker Demo</title>
+</head>
+<body style="background: #222; color: #eee; font-family: sans-serif;">
+  <h1>Simple Vercel Demo</h1>
+  <button id="fetchBtn">Fetch 3 Tickers</button>
+  
+  <script>
+    document.getElementById('fetchBtn').addEventListener('click', async () => {
+      console.log('Fetching data...');
+      try {
+        // Hardcoded: e.g. "?tickers=AAPL,MSFT,GOOG"
+        const url = '/api/polygon?tickers=AAPL,MSFT,GOOG';
+        
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status} ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log('Fetched data successfully:', result.data);
+        
+      } catch (err) {
+        console.error('Error fetching data:', err);
+      }
+    });
+  </script>
+</body>
+</html>
