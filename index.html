@@ -1,32 +1,130 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <title>Polygon Ticker Demo</title>
+  <meta charset="UTF-8" />
+  <title>Simple Ticker Fetch</title>
 </head>
 <body style="background: #222; color: #eee; font-family: sans-serif;">
-  <h1>Simple Vercel Demo</h1>
-  <button id="fetchBtn">Fetch 3 Tickers</button>
-  
+  <h1>Simple 1-Year Data Fetch</h1>
+  <button id="fetchBtn">Fetch Tickers</button>
+
   <script>
-    document.getElementById('fetchBtn').addEventListener('click', async () => {
-      console.log('Fetching data...');
+
+    // Our array of up to 3 tickers
+    const tickers = ["AAPL","MSFT","CRM"];
+
+    // This function calls our serverless endpoint with the dates & tickers
+    async function fetchStockData() {
       try {
-        // Hardcoded: e.g. "?tickers=AAPL,MSFT,GOOG"
-        const url = '/api/polygon?tickers=AAPL,MSFT,GOOG';
+        // 1) Get the 1-year date range
+        const { startDate, endDate } = getDates();
         
+        // 2) Convert tickers array to a comma-separated string
+        const tickersParam = tickers.join(',');
+
+        const url = `/api/polygon?tickers=${tickersParam}`;
+
+        console.log('Requesting:', url);
         const response = await fetch(url);
+        
+        // 5) Check for success
         if (!response.ok) {
-          throw new Error(`Server error: ${response.status} ${response.statusText}`);
+          throw new Error(`HTTP error: ${response.status}`);
         }
 
-        const result = await response.json();
-        console.log('Fetched data successfully:', result.data);
+        // 6) Parse the JSON
+        const data = await response.json();
+        console.log("Ticker data:", data);
         
       } catch (err) {
-        console.error('Error fetching data:', err);
+        console.error("Error fetching data:", err);
       }
-    });
+    }
+
+    // Click button → fetch 1 year of data for AAPL, MSFT, GOOG
+    document.getElementById('fetchBtn').addEventListener('click', fetchStockData);
   </script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Stock Adviser</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+
+    <div id="large-header" class="large-header">
+        <canvas id="demo-canvas"></canvas>
+    </div>
+
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">
+            <span>Mock</span>
+            <span>Market</span>
+        </a>
+      
+        <div class="navbar-links">
+            <a href="./docs.html" class="navbar-link">Docs</a>
+            <a href="./about.html" class="navbar-link">About</a>
+            <a href="https://github.com/your-username" target="_blank" class="navbar-link">GitHub</a>
+        </div>
+      </nav>
+
+  <div id="app">
+    <header>
+        <h2>Brutaly Honest Advice</h2>
+        <p>Add up to 3 stock tickers to get a stock predictions report</p>
+    </header>
+
+    <section class="search-section">
+        <div class="companySearch-wrapper">
+            <input
+            type="text"
+                id="company-input"
+                placeholder="Search for a company (S&P 500)"
+                autocomplete="off"    
+            />
+            <button class="plus-button" aria-label="Add company" id="add-ticker-btn"></button>
+            <div id="suggestions"></div>
+        </div>
+
+        <section class="selected-companies">
+            <div id="tickers-container"></div>
+            <div class="not-found">
+                <span>Oops! That’s not in the S&P 500.</span>
+            </div>
+        </section>
+
+      <button class="get-report" id="get-report-btn" disabled>Get Report</button>
+        
+    </section>
+    
+
+    <!-- Loading Section (hidden by default) -->
+    <section class="loading-section" id="loading-section" hidden>
+      <img src="./data/loader3.svg" alt="Loading..." class="loader"/>
+      <p>Generating your report...</p>
+    </section>
+
+    <!-- Report Display Section (hidden by default) -->
+    <section class="report-section" id="reportSection" hidden>
+      <h2>Investment Advice</h2>
+      <p id="adviceContent"></p>
+    </section>
+  </div>
+
+  <!-- Main JS for the app logic -->
+  <script src="./script.js"></script>
+  <!-- Separate animation JS -->
+  <script src="./animation.js"></script>
+  <!-- <script src="./src/animation-1.js"></script> -->
+
 </body>
 </html>
