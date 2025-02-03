@@ -24,8 +24,8 @@ export default async function handler(req, res) {
             { role: "user", content: prompt }],
     });
 
-    const completionText = response.choices?.[0].text?.trim() || "No response";
-    return res.status(200).json({ completion: completionText });
+      const completionText = response.choices?.[0]?.message?.content?.trim() || "No response";
+      return res.status(200).json({ completion: completionText });
   } catch (error) {
     console.error("OpenAI API Error:", error);
     return res.status(500).json({ error: "Error calling OpenAI API." });
