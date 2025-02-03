@@ -193,8 +193,8 @@ async function fetchStockData() {
     document.querySelector('header').hidden = true;
 
     try {
-        const tickersParam = tickersArr.join(',');
-        const url = `/api/polygon?tickers=${tickersParam}`;
+        const tickersList = tickersArr.join(',');
+        const url = `/api/polygon?tickers=${tickersList}`;
 
         console.log('Requesting:', url);
         const response = await fetch(url);
@@ -203,10 +203,103 @@ async function fetchStockData() {
             throw new Error(`HTTP error: ${response.status}`);
         }
 
-        const data = await response.json();
-        console.log("Ticker data:", data);
-      
+        const polygonData = await response.json();
+        // getReportFromOpenAI(polygonData);
+        fetchOpenAIResponse();
+
     } catch (err) {
         console.error("Error fetching data:", err);
     }
-  }
+}
+  
+function formatPolygonDataForOpenAI(polygonData) {
+    let formattedStockData = "";
+  
+    polygonData.data.forEach(stock => {
+        const { ticker, tickerData } = stock;
+    
+        if (!tickerData.results || tickerData.results.length < 2) {
+            formattedStockData += `- ${ticker}: Insufficient data available.\n`;
+            return;
+        }
+    
+        const sortedResults = [...tickerData.results].sort((a, b) => a.t - b.t);
+        
+        const oldest = sortedResults[0];
+        const latest = sortedResults[sortedResults.length - 1];
+    
+        const oldestClose = oldest.c;
+        const latestClose = latest.c;
+        const pctChange = (((latestClose - oldestClose) / oldestClose) * 100).toFixed(2);
+    
+        const closingPrices = sortedResults.map(day => day.c);
+        const highestClose = Math.max(...closingPrices);
+        const lowestClose = Math.min(...closingPrices);
+    
+        const lastThree = sortedResults.slice(-3);
+        const avgVolume = (lastThree.reduce((sum, day) => sum + day.v, 0) / lastThree.length).toFixed(0);
+    
+        const oldestDate = new Date(oldest.t).toISOString().split('T')[0];
+        const latestDate = new Date(latest.t).toISOString().split('T')[0];
+    
+        formattedStockData += `- ${ticker}: From ${oldestDate} to ${latestDate}, the stock closed at $${oldestClose} and $${latestClose} respectively (a ${pctChange}% change). The yearly high was $${highestClose} and low was $${lowestClose}. Recent avg volume: ${avgVolume}.\n`;
+    });
+  
+    return formattedStockData;
+}
+  
+// async function getReportFromOpenAI(polygonData) {
+//     const formattedData = formatPolygonDataForOpenAI(polygonData);
+  
+//     // Build a prompt that explains what you need from GPT-4.
+//     const prompt = `Analyze the following stock data for S&P 500 stocks. For each ticker, provide a bullet point summary in a casual, bro tone that is honest and direct. Each ticker’s analysis should be between 40 to 50 words and include a recommendation to buy, sell, or hold.
+//                     Background: The data represents aggregated daily metrics over the past year. 
+//                     Data:
+//                     ${formattedData}
+//                     Please generate the analysis report.
+//                     `;
+  
+//     try {
+//         const response = await fetch('/api/openai', {
+//             method: 'POST',
+//             headers: { 'Content-Type': 'application/json' },
+//             body: JSON.stringify({ prompt })
+//         });
+  
+//         if (!response.ok) {
+//             throw new Error(`OpenAI API error: ${response.statusText}`);
+//         }
+  
+//         const result = await response.json();
+//         // return result.report;
+//         console.log(result)
+//     } catch (error) {
+//         console.error("Error in getReportFromOpenAI:", error);
+//       throw error;
+//     }
+//   }
+
+async function fetchOpenAIResponse() {
+    const prompt = `How are you today?
+                `;
+    
+    if (!prompt) {
+        alert("Please enter a prompt!");
+        return;
+        }
+    
+        try {
+        const response = await fetch("/api/openai", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prompt: prompt }),
+        });
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || "Request failed.");
+        }
+            const data = await response.json();
+            console.log(data)
+        } catch (error) {
+        }
+}

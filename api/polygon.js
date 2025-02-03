@@ -28,14 +28,15 @@ export default async function handler(req, res) {
     const startDate = formatDate(startDateObj);
 
     const fetchPromises = tickerArray.map(async (ticker) => {
-        const url = `https://api.polygon.io/v2/aggs/ticker/${ticker}/range/1/day/${startDate}/${endDate}?adjusted=true&sort=desc&apiKey=${process.env.POLYGON_API_KEY}`;
-        const response = await fetch(url);
+      const url = `https://api.polygon.io/v2/aggs/ticker/${ticker}/range/1/day/${startDate}/${endDate}?adjusted=true&sort=desc&apiKey=${process.env.POLYGON_API_KEY}`;
+      const response = await fetch(url);
         
         if (!response.ok) {
             throw new Error(`Failed to fetch data for ${ticker} (status: ${response.status})`);
         }
-        const data = await response.json();
-        return { ticker, data };
+        const tickerData = await response.json();
+        
+        return { ticker, tickerData };
     });
 
     const resultsArray = await Promise.all(fetchPromises);
