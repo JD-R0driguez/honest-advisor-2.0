@@ -252,7 +252,7 @@ async function getReportFromOpenAI(polygonData) {
     
     const formattedData = formatPolygonDataForOpenAI(polygonData);
 
-    const prompt = `Analyze the following stock data for S&P 500 stocks. For each ticker, provide a bullet point summary. Each ticker’s analysis should be between 50 to 60 words.
+    const prompt = `Analyze the following stock data for S&P 500 stocks. For each ticker, provide a bullet point summary. Each ticker’s analysis must be between 50 to 60 words.
                     Background: The data represents aggregated daily metrics over the past year. 
                     Data:
                     ${formattedData}
