@@ -247,47 +247,15 @@ function formatPolygonDataForOpenAI(polygonData) {
   
     return formattedStockData;
 }
-  
-// async function getReportFromOpenAI(polygonData) {
-//     const formattedData = formatPolygonDataForOpenAI(polygonData);
-  
-//     // Build a prompt that explains what you need from GPT-4.
-//     const prompt = `Analyze the following stock data for S&P 500 stocks. For each ticker, provide a bullet point summary in a casual, bro tone that is honest and direct. Each ticker’s analysis should be between 40 to 50 words and include a recommendation to buy, sell, or hold.
-//                     Background: The data represents aggregated daily metrics over the past year. 
-//                     Data:
-//                     ${formattedData}
-//                     Please generate the analysis report.
-//                     `;
-  
-//     try {
-//         const response = await fetch('/api/openai', {
-//             method: 'POST',
-//             headers: { 'Content-Type': 'application/json' },
-//             body: JSON.stringify({ prompt })
-//         });
-  
-//         if (!response.ok) {
-//             throw new Error(`OpenAI API error: ${response.statusText}`);
-//         }
-  
-//         const result = await response.json();
-//         // return result.report;
-//         console.log(result)
-//     } catch (error) {
-//         console.error("Error in getReportFromOpenAI:", error);
-//       throw error;
-//     }
-//   }
 
 async function getReportFromOpenAI(polygonData) {
     
     const formattedData = formatPolygonDataForOpenAI(polygonData);
 
-    const prompt = `Analyze the following stock data for S&P 500 stocks. For each ticker, provide a bullet point summary in a casual, bro tone that is honest and direct. Each ticker’s analysis should be between 40 to 50 words and include a recommendation to buy, sell, or hold.
+    const prompt = `Analyze the following stock data for S&P 500 stocks. For each ticker, provide a bullet point summary. Each ticker’s analysis should be between 60 to 80 words.
                     Background: The data represents aggregated daily metrics over the past year. 
                     Data:
                     ${formattedData}
-                    Please generate the analysis report.
                 `;
     
     try {
@@ -304,3 +272,7 @@ async function getReportFromOpenAI(polygonData) {
     } catch (error) {
     }
 }
+
+// - **GOOGL**: Yo, Google’s been on a ride! Up 43.22% from last year, hitting a high of $206.38. That’s dope! But, keep an eye on that low of $131.40 too. With a solid average volume of 33 million, I’d say grab some shares. **Recommendation: Buy.**\n\n- 
+//     ** TSLA **: Dude, Tesla just crushed it! A whopping 111.89 % gain, closing at $392.21.They hit a high of $479.86, so there’s some serious momentum here.With crazy volume at 77 million, I’d say hop on this wild train. ** Recommendation: Buy.**\n\n - 
+// ** CMCSA **: Oof, Comcast is not looking too hot, down 24.47 % and closing at $33.55.They haven’t broken out of that low around $33.19 either.Volume's decent but the trend is rough. Might be time to bail on this one. **Recommendation: Sell.**"
