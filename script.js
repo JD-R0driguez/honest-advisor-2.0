@@ -279,27 +279,28 @@ function formatPolygonDataForOpenAI(polygonData) {
 //     }
 //   }
 
-async function fetchOpenAIResponse() {
-    const prompt = `How are you today?
+async function getReportFromOpenAI() {
+    
+    const formattedData = formatPolygonDataForOpenAI(polygonData);
+
+    const prompt = `Analyze the following stock data for S&P 500 stocks. For each ticker, provide a bullet point summary in a casual, bro tone that is honest and direct. Each ticker’s analysis should be between 40 to 50 words and include a recommendation to buy, sell, or hold.
+                    Background: The data represents aggregated daily metrics over the past year. 
+                    Data:
+                    ${formattedData}
+                    Please generate the analysis report.
                 `;
     
-    if (!prompt) {
-        alert("Please enter a prompt!");
-        return;
-        }
-    
-        try {
+    try {
         const response = await fetch("/api/openai", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ prompt: prompt }),
-        });
+    });
         if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || "Request failed.");
+            throw new Error(`OpenAI API error: ${response.statusText}`);
         }
-            const data = await response.json();
-            console.log(data)
-        } catch (error) {
-        }
+        const data = await response.json();
+        console.log(data)
+    } catch (error) {
+    }
 }
