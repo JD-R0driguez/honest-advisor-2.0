@@ -20,8 +20,14 @@ export default async function handler(req, res) {
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini",
         messages: [
-            { role: "system", content: "You are a helpful assistant." },
-            { role: "user", content: prompt }],
+            {
+                role: "system",
+                content: "You are a trading guru. Given the following data, provide advice for each stock. Use a bit sarcastic, brutally honest and not fun tone. Use conversation like words. Recommending whether to buy, hold or sell."
+            },
+            {
+                role: "user",
+                content: prompt
+            }],
     });
 
       const completionText = response.choices?.[0]?.message?.content?.trim() || "No response";
