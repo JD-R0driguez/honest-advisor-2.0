@@ -252,7 +252,7 @@ async function getReportFromOpenAI(polygonData) {
     
     const formattedData = formatPolygonDataForOpenAI(polygonData);
 
-    const prompt = `Analyze the following stock data for S&P 500 stocks. For each ticker, provide a bullet point summary. Each ticker’s analysis should be between 60 to 80 words.
+    const prompt = `Analyze the following stock data for S&P 500 stocks. For each ticker, provide a bullet point summary. Each ticker’s analysis should be between 50 to 60 words.
                     Background: The data represents aggregated daily metrics over the past year. 
                     Data:
                     ${formattedData}
@@ -273,6 +273,3 @@ async function getReportFromOpenAI(polygonData) {
     }
 }
 
-// - **GOOGL**: Yo, Google’s been on a ride! Up 43.22% from last year, hitting a high of $206.38. That’s dope! But, keep an eye on that low of $131.40 too. With a solid average volume of 33 million, I’d say grab some shares. **Recommendation: Buy.**\n\n- 
-//     ** TSLA **: Dude, Tesla just crushed it! A whopping 111.89 % gain, closing at $392.21.They hit a high of $479.86, so there’s some serious momentum here.With crazy volume at 77 million, I’d say hop on this wild train. ** Recommendation: Buy.**\n\n - 
-// ** CMCSA **: Oof, Comcast is not looking too hot, down 24.47 % and closing at $33.55.They haven’t broken out of that low around $33.19 either.Volume's decent but the trend is rough. Might be time to bail on this one. **Recommendation: Sell.**"
