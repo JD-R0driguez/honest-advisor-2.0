@@ -204,8 +204,8 @@ async function fetchStockData() {
         }
 
         const polygonData = await response.json();
-        // getReportFromOpenAI(polygonData);
-        fetchOpenAIResponse();
+        getReportFromOpenAI(polygonData);
+        // fetchOpenAIResponse();
 
     } catch (err) {
         console.error("Error fetching data:", err);
@@ -279,7 +279,7 @@ function formatPolygonDataForOpenAI(polygonData) {
 //     }
 //   }
 
-async function getReportFromOpenAI() {
+async function getReportFromOpenAI(polygonData) {
     
     const formattedData = formatPolygonDataForOpenAI(polygonData);
 
