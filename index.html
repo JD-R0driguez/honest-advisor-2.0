@@ -11,7 +11,7 @@
 </head>
 <body>
 
-    <div id="large-header" class="large-header">
+    <div id="background-canvas" class="background-canvas">
         <canvas id="demo-canvas"></canvas>
     </div>
 
@@ -29,29 +29,28 @@
       </nav>
 
   <div id="app">
-    <header>
-        <h2>Brutaly Honest Advice</h2>
-        <p>Add up to 3 stock tickers to get a stock predictions report</p>
-    </header>
-
     <section class="search-section">
-        <div class="companySearch-wrapper">
-            <input
-            type="text"
-                id="company-input"
-                placeholder="Search for a company (S&P 500)"
-                autocomplete="off"    
-            />
-            <button class="plus-button" aria-label="Add company" id="add-ticker-btn"></button>
-            <div id="suggestions"></div>
-        </div>
+      <header>
+        <h2 class="heading">Brutaly Honest Advice</h2>
+        <p class="sub-header">Add up to 3 stock tickers to get a stock predictions report</p>
+      </header>
+      <div class="companySearch-wrapper">
+          <input
+          type="text"
+              id="company-input"
+              placeholder="Search for a company (S&P 500)"
+              autocomplete="off"    
+          />
+          <button class="plus-button" aria-label="Add company" id="add-ticker-btn"></button>
+          <div id="suggestions"></div>
+      </div>
 
-        <section class="selected-companies">
-            <div id="tickers-container"></div>
-            <div class="not-found">
-                <span>Oops! That’s not in the S&P 500.</span>
-            </div>
-        </section>
+      <div class="selected-companies">
+          <div id="tickers-container"></div>
+          <div class="not-found">
+              <span>Oops! That’s not in the S&P 500.</span>
+          </div>
+      </div>
 
       <button class="get-report" id="get-report-btn" disabled>Get Report</button>
         
@@ -59,13 +58,15 @@
     
 
     <section class="loading-section" id="loading-section" hidden>
-      <img src="./data/loader3.svg" alt="Loading..." class="loader"/>
-      <p>Generating your report...</p>
+      <img src="./data/loader3.svg" alt="Loading..." class="loader-svg"/>
+      <p class="loader-text">Generating your report...</p>
     </section>
 
-    <section class="report-section" id="reportSection" hidden>
-      <h2>Investment Advice</h2>
-      <p id="adviceContent"></p>
+    <section class="report-section" id="report-section" hidden>
+      <div id="report-content"></div>
+      <div class="report-btn-container">
+        <button class="get-report" id="restart-app-btn">Restart</button>
+      </div>
     </section>
   </div>
 

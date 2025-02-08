@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function initHeader() {
 
-    largeHeader = document.getElementById("large-header");
+    largeHeader = document.getElementById("background-canvas");
     canvas = document.getElementById("demo-canvas");
 
     width = window.innerWidth;

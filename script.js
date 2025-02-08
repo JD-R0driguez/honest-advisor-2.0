@@ -11,6 +11,7 @@ const notFoundLabel = document.querySelector('.not-found span');
 const tickersContainer = document.getElementById('tickers-container');
 const generateReportBtn = document.querySelector('#get-report-btn');
 const loadingContainer = document.getElementById('loading-section');
+const reportContainer = document.getElementById('report-section');
 
 
 searchBar.addEventListener('input', handleCompanySearch);
@@ -204,7 +205,8 @@ async function fetchStockData() {
         }
 
         const polygonData = await response.json();
-        getReportFromOpenAI(polygonData);
+        generateReport()
+        // getReportFromOpenAI(polygonData);
         // fetchOpenAIResponse();
 
     } catch (err) {
@@ -273,3 +275,94 @@ async function getReportFromOpenAI(polygonData) {
     }
 }
 
+function generateReport() {
+
+    setTimeout(() => {
+        loadingContainer.hidden = true;
+        reportContainer.hidden = false;
+        reportContainer.classList.add('fade-in');
+        displayReport(report)
+    }, 3000); 
+}   
+
+const report = {
+    "completion": "Alright, investors, let’s break down this stock buffet with a side of blunt truth. Here's the scoop on TSLA, IBM, and CBRE.\n\n- **TSLA (Tesla)**: This rollercoaster of a stock skyrocketed 111.89% in a year, closing at $392.21. Sure, it’s a wild ride, but with a yearly high of $479.86 and a low of $142.05, it’s not for the faint-hearted. If you can stomach the drama, buy. Just keep your hands inside the vehicle at all times.\n\n- **IBM (International Business Machines)**: Finished at $264.46, up 44.19%. It’s like watching paint dry with a yearly range that's just not exciting. At least it didn’t drop into oblivion. Hold on to it if you've got it, but don’t go mooning over it in hopes of a major breakout. You're better off saving those wishes for a unicorn.\n\n- **CBRE (CBRE Group)**: Enjoyed a solid 70.89% gain, wrapping up at $143.87. This stock's pretty steady, with a yearly high of $144.74, so it's not setting the world on fire, but it’s reliable. If you're looking for a decent slog rather than a thrill ride, buy it. Otherwise, don’t expect fireworks."
+}
+
+
+
+function displayReport(reportData) {
+
+    const reportSection = document.getElementById('report-section');
+    const reportContent = document.getElementById('report-content');
+  
+    // Clear any previous report content.
+    reportContent.innerHTML = "";
+  
+    // Extract the report text from the API response.
+    const text = reportData.completion;
+    // Split text into parts by double newlines.
+    // We assume that the first block is the introduction
+    // and that any block starting with a dash '-' is a ticker report.
+    const parts = text.split('\n\n');
+    let introText = "";
+    let tickerReports = [];
+  
+    parts.forEach(part => {
+      const trimmed = part.trim();
+      if (trimmed.startsWith('-')) {
+        tickerReports.push(trimmed);
+      } else if (trimmed.length > 0) {
+        // Accumulate non-bullet text as the introduction.
+        introText = introText ? introText + "\n\n" + trimmed : trimmed;
+      }
+    });
+  
+    // Create and append the introduction paragraph.
+    if (introText) {
+      const introEl = document.createElement('p');
+      introEl.className = "report-intro";
+      introEl.textContent = introText;
+      reportContent.appendChild(introEl);
+    }
+  
+    // Loop over each ticker report to create its card.
+    tickerReports.forEach(tickerReport => {
+      // Remove the leading dash.
+      let tickerText = tickerReport.startsWith('-') 
+                        ? tickerReport.substring(1).trim() 
+                        : tickerReport;
+  
+      // Use regex to extract a title and description.
+      // Expected format: **Ticker (Company Name)**: description text
+      const regex = /\*\*(.*?)\*\*:\s*(.*)/;
+      const match = tickerText.match(regex);
+  
+      const tickerContainer = document.createElement('div');
+      tickerContainer.className = "ticker-report";
+  
+      if (match) {
+        // Create and append the title.
+        const titleEl = document.createElement('h3');
+        titleEl.textContent = match[1];
+        tickerContainer.appendChild(titleEl);
+  
+        // Create and append the description.
+        const descEl = document.createElement('p');
+        descEl.textContent = match[2];
+        tickerContainer.appendChild(descEl);
+      } else {
+        // If the expected markdown format isn’t found,
+        // simply display the whole text in a paragraph.
+        const pEl = document.createElement('p');
+        pEl.textContent = tickerText;
+        tickerContainer.appendChild(pEl);
+      }
+  
+      reportContent.appendChild(tickerContainer);
+    });
+  
+    // Finally, reveal the report section.
+    reportSection.hidden = false;
+  }
+  
