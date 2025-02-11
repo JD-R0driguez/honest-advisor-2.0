@@ -259,11 +259,7 @@ async function getReportFromOpenAI(polygonData) {
     
     const formattedData = formatPolygonDataForOpenAI(polygonData);
 
-    const prompt = `Analyze the following stock data for S&P 500 stocks. For each ticker, provide a bullet point summary. Each ticker’s should have starth with analysis must be between 50 to 60 words.
-                    Background: The data represents aggregated daily metrics over the past year. 
-                    Data:
-
-                    Analyze the following stock data for S&P 500 stocks. Provide a short introductory paragraph (one or two lines). Then, for each ticker, provide a bullet-point summary that meets these requirements:
+    const prompt = `Analyze the following stock data for S&P 500 stocks. Provide a short introductory paragraph (one or two lines). Then, for each ticker, provide a bullet-point summary that meets these requirements:
                     1. Begin with the ticker in uppercase, followed by the full company name in parentheses (e.g., **TSLA (Tesla)**).
                     2. The summary must be between 50 and 60 words.
                     3. Base your observations on the following aggregated daily metrics over the past year:
@@ -285,20 +281,6 @@ async function getReportFromOpenAI(polygonData) {
     } catch (error) {
     }
 }
-
-// function generateReport() {
-
-//     setTimeout(() => {
-//         loadingSection.hidden = true;
-//         reportSection.hidden = false;
-//         reportSection.classList.add('fade-in');
-//         displayReport(report)
-//     }, 3000); 
-// }   
-
-// const report = {
-//     "completion": "Alright, investors, let’s break down this stock buffet with a side of blunt truth. Here's the scoop on TSLA, IBM, and CBRE.\n\n- **TSLA (Tesla)**: This rollercoaster of a stock skyrocketed 111.89% in a year, closing at $392.21. Sure, it’s a wild ride, but with a yearly high of $479.86 and a low of $142.05, it’s not for the faint-hearted. If you can stomach the drama, buy. Just keep your hands inside the vehicle at all times.\n\n- **IBM (International Business Machines)**: Finished at $264.46, up 44.19%. It’s like watching paint dry with a yearly range that's just not exciting. At least it didn’t drop into oblivion. Hold on to it if you've got it, but don’t go mooning over it in hopes of a major breakout. You're better off saving those wishes for a unicorn.\n\n- **CBRE (CBRE Group)**: Enjoyed a solid 70.89% gain, wrapping up at $143.87. This stock's pretty steady, with a yearly high of $144.74, so it's not setting the world on fire, but it’s reliable. If you're looking for a decent slog rather than a thrill ride, buy it. Otherwise, don’t expect fireworks."
-// }
 
 /**
  * Breaks down the main text into intro text and ticker report lines.
