@@ -264,13 +264,14 @@ async function getReportFromOpenAI(polygonData) {
                     2. Follow it by one blank line.
                     3. For each stock ticker in the data, add a single bullet point with the following format:
                         - **TICKER (Full Company Name)**: Summary text
-                        - The bullet **must** start with a dash (`-`), then a space, then **TICKER (Company Name)**:.
+                        - The bullet **must** start with a dash (-), then a space, then **TICKER (Company Name)**:.
                         - The summary text must be **between 50 and 60 words** (inclusive). 
                         - Use each stock’s aggregated daily metrics from the past year to form your observations.
 
                     4. **No additional text** (such as disclaimers or footers) beyond this structure.
                     5. Base your observations on the following aggregated daily metrics over the past year:
-                    ${formattedData}`;
+                    ${formattedData}
+                `;
     
     try {
         const response = await fetch("/api/openai", {
