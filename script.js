@@ -4,14 +4,21 @@ let sp500Companies = [];
 let currentIndex = -1;
 let foundCompany = false;
 let matchesCache = [];     
+
+// Main sections/screens
+const searchSection = document.getElementById('search-section');
+const loadingSection = document.getElementById('loading-section');
+const reportSection = document.getElementById('report-section');
+
+//Input and control elements
 const searchBar = document.getElementById('company-input');
 const suggestionsDiv = document.getElementById('suggestions');
 const addTickerButton = document.getElementById('add-ticker-btn');
 const notFoundLabel = document.querySelector('.not-found span');
 const tickersContainer = document.getElementById('tickers-container');
-const generateReportBtn = document.querySelector('#get-report-btn');
-const loadingContainer = document.getElementById('loading-section');
-const reportContainer = document.getElementById('report-section');
+const generateReportBtn = document.getElementById('get-report-btn');
+const reportContent = document.getElementById('report-content');
+const restartBtn = document.getElementById('restart-app-btn');
 
 
 searchBar.addEventListener('input', handleCompanySearch);
@@ -19,6 +26,7 @@ searchBar.addEventListener('keydown', handleKeyNavigation);
 searchBar.addEventListener('focus', handleSearchBarFocus);
 addTickerButton.addEventListener('click', addTicker)
 generateReportBtn.addEventListener('click', fetchStockData);
+restartBtn.addEventListener('click', restarApplication);
 
 
 
@@ -187,11 +195,10 @@ function updateButtonStates() {
 
 async function fetchStockData() {
 
-    loadingContainer.hidden = false;
-    loadingContainer.classList.add('fade-in');
+    loadingSection.hidden = false;
+    loadingSection.classList.add('fade-in');
 
     document.querySelector('.search-section').hidden = true;
-    document.querySelector('header').hidden = true;
 
     try {
         const tickersList = tickersArr.join(',');
@@ -205,9 +212,8 @@ async function fetchStockData() {
         }
 
         const polygonData = await response.json();
-        generateReport()
-        // getReportFromOpenAI(polygonData);
-        // fetchOpenAIResponse();
+        // generateReport()
+        getReportFromOpenAI(polygonData);
 
     } catch (err) {
         console.error("Error fetching data:", err);
@@ -271,98 +277,109 @@ async function getReportFromOpenAI(polygonData) {
         }
         const data = await response.json();
         console.log(data)
+        displayReport(data)
     } catch (error) {
     }
 }
 
-function generateReport() {
+// function generateReport() {
 
-    setTimeout(() => {
-        loadingContainer.hidden = true;
-        reportContainer.hidden = false;
-        reportContainer.classList.add('fade-in');
-        displayReport(report)
-    }, 3000); 
-}   
+//     setTimeout(() => {
+//         loadingSection.hidden = true;
+//         reportSection.hidden = false;
+//         reportSection.classList.add('fade-in');
+//         displayReport(report)
+//     }, 3000); 
+// }   
 
-const report = {
-    "completion": "Alright, investors, let’s break down this stock buffet with a side of blunt truth. Here's the scoop on TSLA, IBM, and CBRE.\n\n- **TSLA (Tesla)**: This rollercoaster of a stock skyrocketed 111.89% in a year, closing at $392.21. Sure, it’s a wild ride, but with a yearly high of $479.86 and a low of $142.05, it’s not for the faint-hearted. If you can stomach the drama, buy. Just keep your hands inside the vehicle at all times.\n\n- **IBM (International Business Machines)**: Finished at $264.46, up 44.19%. It’s like watching paint dry with a yearly range that's just not exciting. At least it didn’t drop into oblivion. Hold on to it if you've got it, but don’t go mooning over it in hopes of a major breakout. You're better off saving those wishes for a unicorn.\n\n- **CBRE (CBRE Group)**: Enjoyed a solid 70.89% gain, wrapping up at $143.87. This stock's pretty steady, with a yearly high of $144.74, so it's not setting the world on fire, but it’s reliable. If you're looking for a decent slog rather than a thrill ride, buy it. Otherwise, don’t expect fireworks."
-}
+// const report = {
+//     "completion": "Alright, investors, let’s break down this stock buffet with a side of blunt truth. Here's the scoop on TSLA, IBM, and CBRE.\n\n- **TSLA (Tesla)**: This rollercoaster of a stock skyrocketed 111.89% in a year, closing at $392.21. Sure, it’s a wild ride, but with a yearly high of $479.86 and a low of $142.05, it’s not for the faint-hearted. If you can stomach the drama, buy. Just keep your hands inside the vehicle at all times.\n\n- **IBM (International Business Machines)**: Finished at $264.46, up 44.19%. It’s like watching paint dry with a yearly range that's just not exciting. At least it didn’t drop into oblivion. Hold on to it if you've got it, but don’t go mooning over it in hopes of a major breakout. You're better off saving those wishes for a unicorn.\n\n- **CBRE (CBRE Group)**: Enjoyed a solid 70.89% gain, wrapping up at $143.87. This stock's pretty steady, with a yearly high of $144.74, so it's not setting the world on fire, but it’s reliable. If you're looking for a decent slog rather than a thrill ride, buy it. Otherwise, don’t expect fireworks."
+// }
 
-
-
-function displayReport(reportData) {
-
-    const reportSection = document.getElementById('report-section');
-    const reportContent = document.getElementById('report-content');
-  
-    // Clear any previous report content.
-    reportContent.innerHTML = "";
-  
-    // Extract the report text from the API response.
-    const text = reportData.completion;
-    // Split text into parts by double newlines.
-    // We assume that the first block is the introduction
-    // and that any block starting with a dash '-' is a ticker report.
-    const parts = text.split('\n\n');
+/**
+ * Breaks down the main text into intro text and ticker report lines.
+ * Returns an object with { introText, tickerReports }.
+ */
+function parseCompletionText(completion) {
+    const parts = completion.split('\n\n');
     let introText = "";
     let tickerReports = [];
   
     parts.forEach(part => {
       const trimmed = part.trim();
+  
       if (trimmed.startsWith('-')) {
         tickerReports.push(trimmed);
       } else if (trimmed.length > 0) {
-        // Accumulate non-bullet text as the introduction.
-        introText = introText ? introText + "\n\n" + trimmed : trimmed;
+        introText = introText
+          ? `${introText}\n\n${trimmed}`
+          : trimmed;
       }
     });
   
-    // Create and append the introduction paragraph.
-    if (introText) {
-      const introEl = document.createElement('p');
-      introEl.className = "report-intro";
-      introEl.textContent = introText;
-      reportContent.appendChild(introEl);
+    return { introText, tickerReports };
+}
+
+/**
+ * Returns an HTML string for the intro text.
+ * If there's no intro text, returns an empty string.
+ */
+function createIntroHTML(introText) {
+    return introText
+      ? `<p class="report-intro">${introText}</p>`
+      : "";
+}
+  
+/**
+ * Parses a single ticker line (string), looking for the pattern:
+ * **Ticker (Company)**: description
+ * Returns an HTML string for that ticker's card.
+ */
+function createTickerCardHTML(ticker) {
+    const text = ticker.startsWith('-') ? ticker.substring(1).trim() : ticker;
+    const match = text.match(/\*\*(.*?)\*\*:\s*(.*)/);
+  
+    if (match) {
+      return `
+        <div class="ticker-report">
+          <h3>${match[1]}</h3>
+          <p>${match[2]}</p>
+        </div>
+      `;
     }
   
-    // Loop over each ticker report to create its card.
-    tickerReports.forEach(tickerReport => {
-      // Remove the leading dash.
-      let tickerText = tickerReport.startsWith('-') 
-                        ? tickerReport.substring(1).trim() 
-                        : tickerReport;
+    return `
+      <div class="ticker-report">
+        <p>${text}</p>
+      </div>
+    `;
+}
   
-      // Use regex to extract a title and description.
-      // Expected format: **Ticker (Company Name)**: description text
-      const regex = /\*\*(.*?)\*\*:\s*(.*)/;
-      const match = tickerText.match(regex);
+function createAllTickerCardsHTML(tickerReports) {
+    return tickerReports
+      .map(createTickerCardHTML)
+      .join('');
+}
+
+function displayReport(reportData) {
+    reportContent.innerHTML = "";
+    const { introText, tickerReports } = parseCompletionText(reportData.completion);
   
-      const tickerContainer = document.createElement('div');
-      tickerContainer.className = "ticker-report";
+    const introHTML = createIntroHTML(introText);
+    const tickersHTML = createAllTickerCardsHTML(tickerReports);
   
-      if (match) {
-        // Create and append the title.
-        const titleEl = document.createElement('h3');
-        titleEl.textContent = match[1];
-        tickerContainer.appendChild(titleEl);
+    reportContent.insertAdjacentHTML('beforeend', introHTML + tickersHTML);
   
-        // Create and append the description.
-        const descEl = document.createElement('p');
-        descEl.textContent = match[2];
-        tickerContainer.appendChild(descEl);
-      } else {
-        // If the expected markdown format isn’t found,
-        // simply display the whole text in a paragraph.
-        const pEl = document.createElement('p');
-        pEl.textContent = tickerText;
-        tickerContainer.appendChild(pEl);
-      }
-  
-      reportContent.appendChild(tickerContainer);
-    });
-  
-    // Finally, reveal the report section.
     reportSection.hidden = false;
-  }
+}
   
+function restarApplication() {
+    tickersArr.length = 0;
+    renderTickers();
+        
+    reportSection.hidden = true;
+    generateReportBtn.disabled = true;
+
+    searchSection.hidden = false;
+    searchSection.classList.add('fade-in');
+}
