@@ -260,7 +260,7 @@ async function getReportFromOpenAI(polygonData) {
     const formattedData = formatPolygonDataForOpenAI(polygonData);
 
     const prompt = `Analyze the following stock data for S&P 500 stocks. Provide a short introductory paragraph (one or two lines). Then, for each ticker, provide a bullet-point summary that meets these requirements:
-                    1. Begin with the ticker in uppercase, followed by the full company name in parentheses (e.g., **TSLA (Tesla)**).
+                    1. Begin with the ticker in uppercase, followed by the full company name in parentheses (e.g., TSLA (Tesla)).
                     2. The summary must be between 50 and 60 words.
                     3. Base your observations on the following aggregated daily metrics over the past year:
                     ${formattedData}
