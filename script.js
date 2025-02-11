@@ -212,7 +212,6 @@ async function fetchStockData() {
         }
 
         const polygonData = await response.json();
-        // generateReport()
         getReportFromOpenAI(polygonData);
 
     } catch (err) {
@@ -260,9 +259,14 @@ async function getReportFromOpenAI(polygonData) {
     
     const formattedData = formatPolygonDataForOpenAI(polygonData);
 
-    const prompt = `Analyze the following stock data for S&P 500 stocks. For each ticker, provide a bullet point summary. Each ticker’s analysis must be between 50 to 60 words.
+    const prompt = `Analyze the following stock data for S&P 500 stocks. For each ticker, provide a bullet point summary. Each ticker’s should have starth with analysis must be between 50 to 60 words.
                     Background: The data represents aggregated daily metrics over the past year. 
                     Data:
+
+                    Analyze the following stock data for S&P 500 stocks. Provide a short introductory paragraph (one or two lines). Then, for each ticker, provide a bullet-point summary that meets these requirements:
+                    1. Begin with the ticker in uppercase, followed by the full company name in parentheses (e.g., **TSLA (Tesla)**).
+                    2. The summary must be between 50 and 60 words.
+                    3. Base your observations on the following aggregated daily metrics over the past year:
                     ${formattedData}
                 `;
     
@@ -362,6 +366,7 @@ function createAllTickerCardsHTML(tickerReports) {
 }
 
 function displayReport(reportData) {
+
     reportContent.innerHTML = "";
     const { introText, tickerReports } = parseCompletionText(reportData.completion);
   
@@ -370,7 +375,9 @@ function displayReport(reportData) {
   
     reportContent.insertAdjacentHTML('beforeend', introHTML + tickersHTML);
   
+    loadingSection.hidden = true;
     reportSection.hidden = false;
+    reportSection.classList.add('fade-in');
 }
   
 function restarApplication() {
