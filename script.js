@@ -212,14 +212,15 @@ async function fetchStockData() {
         }
 
         const polygonData = await response.json();
-        getReportFromOpenAI(polygonData);
+        const summaryData = generateStockSummaryReport(polygonData);
+        getReportFromOpenAI(summaryData);
 
     } catch (err) {
         console.error("Error fetching data:", err);
     }
 }
-  
-function formatPolygonDataForOpenAI(polygonData) {
+
+function generateStockSummaryReport(polygonData) {
     let formattedStockData = "";
   
     polygonData.data.forEach(stock => {
@@ -255,97 +256,67 @@ function formatPolygonDataForOpenAI(polygonData) {
     return formattedStockData;
 }
 
-async function getReportFromOpenAI(polygonData) {
-    
-    const formattedData = formatPolygonDataForOpenAI(polygonData);
+async function getReportFromOpenAI(summaryData) {
 
-    const prompt = `Analyze the following stock data for S&P 500 stocks. Your response **must** follow this exact format:
-                    1. Provide a short introductory paragraph (1 or 2 lines, no bullet points or dashes).
-                    2. Follow it by one blank line.
-                    3. For each stock ticker in the data, add a single bullet point with the following format:
-                        - **TICKER (Full Company Name)**: Summary text
-                        - The bullet **must** start with a dash (-), then a space, then **TICKER (Company Name)**:.
-                        - The summary text must be **between 50 and 60 words** (inclusive). 
-                        - Use each stock’s aggregated daily metrics from the past year to form your observations.
+    const prompt = generateOpenAIPrompt(summaryData);
 
-                    4. **No additional text** (such as disclaimers or footers) beyond this structure.
-                    5. Base your observations on the following aggregated daily metrics over the past year:
-                    ${formattedData}
-                `;
-    
     try {
-        const response = await fetch("/api/openai", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ prompt: prompt }),
-    });
-        if (!response.ok) {
-            throw new Error(`OpenAI API error: ${response.statusText}`);
+        const data = await fetchOpenAIResponse(prompt);
+
+        if (!data || !data.completion) {
+            throw new Error("Invalid response from OpenAI API");
         }
-        const data = await response.json();
-        console.log(data)
-        displayReport(data)
+
+        const parsedData = JSON.parse(data.completion);
+        console.log(parsedData);
+        displayReport(parsedData);
+        
     } catch (error) {
+        console.error("Error fetching or processing data:", error);
     }
 }
 
-/**
- * Breaks down the main text into intro text and ticker report lines.
- * Returns an object with { introText, tickerReports }.
- */
-function parseCompletionText(completion) {
-    const parts = completion.split('\n\n');
-    let introText = "";
-    let tickerReports = [];
-  
-    parts.forEach(part => {
-      const trimmed = part.trim();
-  
-      if (trimmed.startsWith('-')) {
-        tickerReports.push(trimmed);
-      } else if (trimmed.length > 0) {
-        introText = introText
-          ? `${introText}\n\n${trimmed}`
-          : trimmed;
-      }
-    });
-  
-    return { introText, tickerReports };
+function generateOpenAIPrompt(polygonData) {
+    return `Analyze the following stock data for S&P 500 stocks using the aggregated daily metrics from the past year:
+            ${polygonData}
+            
+            Your response must strictly be a valid JSON array. 
+            1. Do not include any code fences or triple backticks.
+            2. For each stock ticker, return an object with the following structure and in this exact order:
+            {
+                "ticker": "TICKER (Full Company Name)",
+                "overview": "A narrative style analysis of 50 to 70 words.",
+                "score": "A percentage from 0 to 100 representing confidence (0% = strong sell, 100% = strong buy).",
+                "callToAction": "A concise statement of 5 to 10 words, aligning with the score and providing guidance."
+            }
+            3. No additional commentary, disclaimers, or text should appear in the response.
+            4. Ensure the "overview" is between 50 and 70 words.
+    `;
 }
 
-/**
- * Returns an HTML string for the intro text.
- * If there's no intro text, returns an empty string.
- */
-function createIntroHTML(introText) {
-    return introText
-      ? `<p class="report-intro">${introText}</p>`
-      : "";
+async function fetchOpenAIResponse(prompt) {
+    const response = await fetch("/api/openai", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }),
+    });
+
+    if (!response.ok) {
+        throw new Error(`OpenAI API error: ${response.statusText}`);
+    }
+
+    return await response.json();
 }
-  
-/**
- * Parses a single ticker line (string), looking for the pattern:
- * **Ticker (Company)**: description
- * Returns an HTML string for that ticker's card.
- */
+
 function createTickerCardHTML(ticker) {
-    const text = ticker.startsWith('-') ? ticker.substring(1).trim() : ticker;
-    const match = text.match(/\*\*(.*?)\*\*:\s*(.*)/);
-  
-    if (match) {
-      return `
+
+    return `
         <div class="ticker-report">
-          <h3>${match[1]}</h3>
-          <p>${match[2]}</p>
+            <h3>${ticker.ticker}</h3>
+            <p>${ticker.overview}</p>
         </div>
       `;
-    }
   
-    return `
-      <div class="ticker-report">
-        <p>${text}</p>
-      </div>
-    `;
 }
   
 function createAllTickerCardsHTML(tickerReports) {
@@ -354,16 +325,11 @@ function createAllTickerCardsHTML(tickerReports) {
       .join('');
 }
 
-function displayReport(reportData) {
+function displayReport(tickerReports) {
 
     reportContent.innerHTML = "";
-    const { introText, tickerReports } = parseCompletionText(reportData.completion);
-  
-    const introHTML = createIntroHTML(introText);
     const tickersHTML = createAllTickerCardsHTML(tickerReports);
-  
-    reportContent.insertAdjacentHTML('beforeend', introHTML + tickersHTML);
-  
+    reportContent.insertAdjacentHTML('beforeend', tickersHTML);
     loadingSection.hidden = true;
     reportSection.hidden = false;
     reportSection.classList.add('fade-in');
@@ -379,4 +345,21 @@ function restarApplication() {
     searchSection.hidden = false;
     searchSection.classList.add('fade-in');
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
