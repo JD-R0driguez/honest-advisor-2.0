@@ -1,9 +1,11 @@
-const tickersArr = []
+const tickersArr = [];
+const tickerChartData = {};
 
 let sp500Companies = [];
 let currentIndex = -1;
 let foundCompany = false;
-let matchesCache = [];     
+let matchesCache = [];
+
 
 // Main sections/screens
 const searchSection = document.getElementById('search-section');
@@ -212,6 +214,15 @@ async function fetchStockData() {
         }
 
         const polygonData = await response.json();
+        const polygonDataArray = polygonData.data;
+
+        polygonDataArray.forEach(stock => {
+            const ticker = stock.ticker;
+            const results = stock.tickerData.results; 
+            generateChartData(ticker, results);
+            
+        });
+        
         const summaryData = generateStockSummaryReport(polygonData);
         getReportFromOpenAI(summaryData);
 
@@ -219,6 +230,112 @@ async function fetchStockData() {
         console.error("Error fetching data:", err);
     }
 }
+
+function generateChartData(symbol, results) {
+
+    const sorted = [...results].sort((a, b) => a.t - b.t);
+    const parsed = sorted.map(rec => {
+        const dateStr = new Date(rec.t).toISOString().split('T')[0];
+        return {
+            date: dateStr,
+            close: rec.c
+            };
+    });
+
+    const yearData = parsed;               
+    const monthData = parsed.slice(-22);  
+
+    tickerChartData[symbol] = {
+        year: yearData,
+        month: monthData
+    };
+}
+
+const charts = {}; // store Chart.js instances keyed by symbol
+
+function createLineChart(symbol, timeframe) {
+    // 1. Find the <canvas> for this symbol
+    const canvasId = `chart-${symbol}`;
+    const canvasElement = document.getElementById(canvasId);
+    if (!canvasElement) return;
+
+    const ctx = canvasElement.getContext('2d');
+    if (!ctx) return;
+
+    const data = tickerChartData[symbol]?.[timeframe] || [];
+    const labels = data.map(d => d.date);
+    const values = data.map(d => d.close);
+
+    const color = "#FF6262";
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [{
+                label: `${symbol} Closing Price`,
+                data: values,
+                borderColor: color,
+                pointRadius: 2,
+                pointHoverRadius: 6, 
+                fill: true,
+                backgroundColor: 'hsla(0, 100%, 69%, 0.1)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { 
+                    type: 'time',
+                    time: {
+                        parser: 'yyyy-MM-dd',
+                        unit: 'month',
+                        displayFormats: {
+                            month: 'MMM yyyy'
+                        }
+                    },
+                    ticks: {
+                        maxTicksLimit: 4, 
+                        color: '#ccc'
+                    },
+                    grid: {
+                        display: false
+                    }
+                },
+                y: {
+                    ticks:
+                    {
+                        color: '#ccc',
+                        count: 5,
+                        callback: (value) => Math.round(value)
+                    },
+                    grid:
+                    {
+                        color: 'rgba(255,255,255,0.1)'
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    display: false 
+                },
+                tooltip: {
+                    enabled: true,
+                    callbacks: {
+                        label: (context) => {
+                            const price = context.parsed.y;
+                            return `Close: $${price.toFixed(2)}`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    charts[symbol] = chart;
+}
+
 
 function generateStockSummaryReport(polygonData) {
     let formattedStockData = "";
@@ -268,7 +385,7 @@ async function getReportFromOpenAI(summaryData) {
         }
 
         const parsedData = JSON.parse(data.completion);
-        console.log(parsedData);
+        console.log(parsedData)
         displayReport(parsedData);
         
     } catch (error) {
@@ -284,7 +401,8 @@ function generateOpenAIPrompt(polygonData) {
             1. Do not include any code fences or triple backticks.
             2. For each stock ticker, return an object with the following structure and in this exact order:
             {
-                "ticker": "TICKER (Full Company Name)",
+                "ticker": "TICKER",
+                "name": "Full Company Name"
                 "overview": "A narrative style analysis of 50 to 70 words.",
                 "score": "A percentage from 0 to 100 representing confidence (0% = strong sell, 100% = strong buy).",
                 "callToAction": "A concise statement of 5 to 10 words, aligning with the score and providing guidance."
@@ -308,22 +426,11 @@ async function fetchOpenAIResponse(prompt) {
     return await response.json();
 }
 
-function createTickerCardHTML(ticker) {
-
-    return `
-        <div class="ticker-report">
-            <h3>${ticker.ticker}</h3>
-            <p>${ticker.overview}</p>
-        </div>
-      `;
-  
-}
-  
 function createAllTickerCardsHTML(tickerReports) {
-    return tickerReports
-      .map(createTickerCardHTML)
-      .join('');
+    const allCardsHTML = tickerReports.map(ticker => createTickerCardHTML(ticker)).join('');
+    return allCardsHTML
 }
+
 
 function displayReport(tickerReports) {
 
@@ -333,6 +440,11 @@ function displayReport(tickerReports) {
     loadingSection.hidden = true;
     reportSection.hidden = false;
     reportSection.classList.add('fade-in');
+
+    tickerReports.forEach(ticker => {
+        const symbol = ticker.ticker;
+        createLineChart(symbol, "year");
+    });
 }
   
 function restarApplication() {
@@ -347,9 +459,25 @@ function restarApplication() {
 }
 
 
-
-
-
+function createTickerCardHTML(ticker) {
+    return `
+      <div class="ticker-report">
+        <h3>${ticker.ticker} (${ticker.name})</h3>
+        <p>${ticker.overview}</p>
+  
+        <div class="chart-container">
+          <canvas id="chart-${ticker.ticker}" class="stock-chart"></canvas>
+        </div>
+  
+        <!-- Buttons for weekly, monthly, yearly -->
+        <div class="timeframe-buttons">
+          <button data-ticker="${ticker.ticker}" data-range="week">Week</button>
+          <button data-ticker="${ticker.ticker}" data-range="month">Month</button>
+          <button data-ticker="${ticker.ticker}" data-range="year">Year</button>
+        </div>
+      </div>
+    `;
+}
 
 
 
