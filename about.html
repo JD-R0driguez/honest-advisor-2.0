@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About - Mock Market</title>
+
+  <!-- Same Google Fonts Import -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet"
+  >
+  <!-- Link to your existing CSS -->
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+
+  <!-- NAVBAR (same as main) -->
+  <nav class="navbar">
+    <a href="/" class="navbar-brand">
+      <span>Mock</span>
+      <span>Market</span>
+    </a>
+  
+    <div class="navbar-links">
+      <!-- Current page link just for demonstration -->
+      <a href="./about.html" class="navbar-link" style="color: #fff;">About</a>
+      <a href="https://github.com/your-username" target="_blank" class="navbar-link">GitHub</a>
+    </div>
+  </nav>
+
+  <!-- MAIN CONTAINER -->
+  <div class="doc-layout">
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="doc-sidebar">
+      <ul>
+        <!-- Each link references a section ID -->
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#step-by-step">Step-by-Step</a></li>
+        <li><a href="#local-json">Local JSON</a></li>
+        <li><a href="#vercel">Vercel Functions</a></li>
+        <li><a href="#polygon-openai">Polygon &amp; OpenAI</a></li>
+        <li><a href="#animation">Background Animation</a></li>
+        <li><a href="#call-to-action">Call to Action</a></li>
+      </ul>
+    </aside>
+
+    <!-- CONTENT AREA -->
+    <section class="doc-content">
+      <!-- OVERVIEW -->
+      <article id="overview" class="doc-section">
+        <h2>Overview</h2>
+        <p>
+          Hello and welcome to <strong>Mock Market</strong>. This is a simple,
+          front-end application designed to provide concise,
+          data-backed stock summaries for S&amp;P 500 companies. It combines a
+          clean user interface with real-time data and a direct, no-nonsense
+          narrative style to help you grasp performance trends quickly.
+        </p>
+      </article>
+
+      <!-- STEP-BY-STEP -->
+      <article id="step-by-step" class="doc-section">
+        <h2>Usage</h2>
+        <ol>
+          <li>
+            <strong>Find Your Stocks:</strong> Start typing an S&amp;P 500 company name or
+            ticker into the search bar. We’ll display matches if they exist.
+          </li>
+          <li>
+            <strong>Add up to 3 Tickers:</strong> Click the plus button to add
+            them to your list. If you try for a fourth, we’ll remind you to keep it
+            streamlined.
+          </li>
+          <li>
+            <strong>Generate the Report:</strong> Hit “Get Report” to fetch real
+            historical data, then watch as OpenAI crafts a direct, no-holds-barred 
+            summary.
+          </li>
+          <li>
+            <strong>Restart Any Time:</strong> Checked out your stocks and
+            want a fresh start? Click “Restart” and pick new tickers.
+          </li>
+        </ol>
+      </article>
+
+      <!-- LOCAL JSON -->
+      <article id="local-json" class="doc-section">
+        <h2>Local JSON for S&amp;P 500</h2>
+        <p>
+          To keep performance snappy, I rely on a <strong>local JSON file</strong>
+          for all S&amp;P 500 listings. This prevents extra API calls just to
+          autocomplete your search. It’s fast, straightforward, and ensures we
+          don’t hit external service limits when you’re simply browsing tickers.
+        </p>
+      </article>
+
+      <!-- VERCEL FUNCTIONS -->
+      <article id="vercel" class="doc-section">
+        <h2>Vercel Functions</h2>
+        <p>
+          This project is deployed on <strong>Vercel</strong>, using their
+          serverless functions to handle key tasks. One function pulls real-time
+          data from Polygon.io, while another sends your chosen stocks to OpenAI.
+          No dealing with servers or complicated infrastructure—it scales nicely
+          as the app grows.
+        </p>
+      </article>
+
+      <!-- POLYGON & OPENAI -->
+      <article id="polygon-openai" class="doc-section">
+        <h2>Polygon &amp; OpenAI</h2>
+        <p>
+          For data, I tap into <strong>Polygon.io</strong> to retrieve historical pricing,
+          volume, and performance metrics. Each request is packaged into a tidy object,
+          then forwarded to <strong>OpenAI</strong> with a carefully crafted prompt.
+          That prompt instructs the model to be informative, concise, and even a bit
+          blunt—giving you straightforward advice in a user-friendly format.
+        </p>
+      </article>
+
+      <!-- BACKGROUND ANIMATION -->
+      <article id="animation" class="doc-section">
+        <h2>Background Animation</h2>
+        <p>
+          If you’ve seen the gentle, drifting lines on the main page, that’s
+          a modified snippet from a fantastic <a href="https://codepen.io/tati420" 
+          target="_blank">CodePen project by @tati420</a>. I adjusted the
+          spacing, color, and drifting behavior to fit the app’s style while
+          retaining that tranquil, techy vibe.
+        </p>
+      </article>
+
+      <!-- CALL TO ACTION -->
+      <article id="call-to-action" class="doc-section">
+        <h2>Call to Action</h2>
+        <p>
+          That’s the scoop! I hope you enjoy using Mock Market as much as 
+          I enjoyed building it. <a href="https://your-portfolio-link-here" 
+          target="_blank" class="cta-link">Check out my portfolio</a> to see
+          what else I’m working on, or feel free to get in touch if you have 
+          any questions or opportunities in mind.
+        </p>
+      </article>
+    </section>
+  </div>
+
+</body>
+</html>
