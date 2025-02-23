@@ -234,27 +234,22 @@ async function fetchStockData() {
 function generateChartData(symbol, results) {
 
     const sorted = [...results].sort((a, b) => a.t - b.t);
-    const parsed = sorted.map(rec => {
+    const parsedYearData = sorted.map(rec => {
         const dateStr = new Date(rec.t).toISOString().split('T')[0];
         return {
             date: dateStr,
             close: rec.c
             };
     });
-
-    const yearData = parsed;               
-    const monthData = parsed.slice(-22);  
-
+   
     tickerChartData[symbol] = {
-        year: yearData,
-        month: monthData
+        year: parsedYearData
     };
 }
 
-const charts = {}; // store Chart.js instances keyed by symbol
+const charts = {}; 
 
 function createLineChart(symbol, timeframe) {
-    // 1. Find the <canvas> for this symbol
     const canvasId = `chart-${symbol}`;
     const canvasElement = document.getElementById(canvasId);
     if (!canvasElement) return;
@@ -468,13 +463,25 @@ function createTickerCardHTML(ticker) {
         <div class="chart-container">
           <canvas id="chart-${ticker.ticker}" class="stock-chart"></canvas>
         </div>
-  
-        <!-- Buttons for weekly, monthly, yearly -->
-        <div class="timeframe-buttons">
-          <button data-ticker="${ticker.ticker}" data-range="week">Week</button>
-          <button data-ticker="${ticker.ticker}" data-range="month">Month</button>
-          <button data-ticker="${ticker.ticker}" data-range="year">Year</button>
+
+        <!-- SCORE BAR (95% width, gradient, marker, SELL/HOLD/BUY labels) -->
+        <div class="score-bar-container">
+            <div class="score-bar">
+            <!-- The marker circle. We'll inject a style attribute for the left offset based on score. -->
+            <div class="score-marker" style="left: ${ticker.score}%;"></div>
+            
+            <!-- SELL / HOLD / BUY labels. We'll absolutely position them along the bar. -->
+            <div class="score-labels">
+                <span class="label-sell">Sell</span>
+                <span class="label-hold">Hold</span>
+                <span class="label-buy">Buy</span>
+            </div>
+            </div>
         </div>
+        
+        <!-- The final text from openAI (callToAction) -->
+        <p class="call-to-action-text">${ticker.callToAction}</p>
+
       </div>
     `;
 }
