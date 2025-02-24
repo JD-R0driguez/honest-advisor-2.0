@@ -52,9 +52,9 @@ document.addEventListener('click', (event) => {
 
 function getDates() {
     const now = new Date();
-    const endDate = now.toISOString().split('T')[0]; // e.g. "2023-09-02"
+    const endDate = now.toISOString().split('T')[0]; 
     const lastYear = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
-    const startDate = lastYear.toISOString().split('T')[0]; // e.g. "2022-09-02"
+    const startDate = lastYear.toISOString().split('T')[0];
     return dates = {
         endDate: endDate,
         startDate: startDate
@@ -445,6 +445,7 @@ function displayReport(tickerReports) {
 function restarApplication() {
     tickersArr.length = 0;
     renderTickers();
+    updateButtonStates(); 
         
     reportSection.hidden = true;
     generateReportBtn.disabled = true;
@@ -464,14 +465,10 @@ function createTickerCardHTML(ticker) {
           <canvas id="chart-${ticker.ticker}" class="stock-chart"></canvas>
         </div>
 
-        <!-- SCORE BAR (95% width, gradient, marker, SELL/HOLD/BUY labels) -->
         <div class="score-bar-container">
             <div class="score-bar">
-            <!-- The marker circle. We'll inject a style attribute for the left offset based on score. -->
             <div class="score-marker" style="left: ${ticker.score}%;"></div>
-            
-            <!-- SELL / HOLD / BUY labels. We'll absolutely position them along the bar. -->
-            <div class="score-labels">
+                        <div class="score-labels">
                 <span class="label-sell">Sell</span>
                 <span class="label-hold">Hold</span>
                 <span class="label-buy">Buy</span>
@@ -479,7 +476,6 @@ function createTickerCardHTML(ticker) {
             </div>
         </div>
         
-        <!-- The final text from openAI (callToAction) -->
         <p class="call-to-action-text">${ticker.callToAction}</p>
 
       </div>

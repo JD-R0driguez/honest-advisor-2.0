@@ -3,7 +3,7 @@
     --bg-color-transparent: #1a1a1a39; 
     --text-color: #eee;
     --light-gray: #a4a4a4e3;
-    --light-gray-font: #bdbdbd;
+    --light-gray-font: #d1d1d1;
     --header-text: #d2d2d2;
     --header-background: #8f8f8f;
     --toggle-bg: #fff;
@@ -418,6 +418,7 @@ header .sub-header{
     }
 }
 
+
 /***************************************
  * Loading Section Styles
  ***************************************/
@@ -521,6 +522,61 @@ header .sub-header{
     margin: 25px auto;
 }
 
+.score-bar-container {
+    width: 100%;     
+    margin: 1.5rem auto 2.5rem auto; 
+}
+  
+.score-bar {
+    position: relative;
+    height: 10px;
+    background: linear-gradient(
+      to right, 
+      #fc8f8f96 0%, 
+      #f9e784b9 50%,
+      #98febcc5 100% 
+    );
+}
+  
+.score-marker {
+    position: absolute;
+    top: -50%;
+    width: 10px;
+    height: 20px;
+    background-color: var(--text-color);
+    border-radius: 2px; 
+}
+  
+.score-labels {
+    position: absolute;
+    top: 1rem; 
+    width: 100%;
+    pointer-events: none;
+    font-size: 0.85rem;
+    color: var(--header-text);
+}
+  
+.score-labels .label-sell {
+    position: absolute;
+    left: 0%;
+    transform: translateX(0);
+}
+.score-labels .label-hold {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+.score-labels .label-buy {
+    position: absolute;
+    left: 100%;
+    transform: translateX(-100%);
+}
+  
+.call-to-action-text {
+    text-align: center;
+}
+  
+
 @media (max-width: 768px) {
     .report-section {
         padding: 4rem 1.5rem;
@@ -547,83 +603,6 @@ header .sub-header{
 
 
 
-
-/* SCORE BAR WRAPPER */
-.score-bar-container {
-    width: 100%;     
-    margin: 1.5rem auto 2.5rem auto; /* keep spacing around it */
-  }
-  
-  /* MAIN BAR ITSELF */
-  /* Now slightly transparent gradient from red → yellow → green */
-  .score-bar {
-    position: relative;
-    height: 10px;
-    background: linear-gradient(
-      to right, 
-      rgba(255, 0, 0, 0.544) 0%,   /* semi-transparent red */
-      rgba(255, 255, 0, 0.548) 50%,/* semi-transparent yellow */
-      rgba(0, 128, 0, 0.565) 100%   /* semi-transparent green */
-    );
-  }
-  
-  /* MARKER AS A BLACK DIAMOND */
-  /* The diamond is basically a rotated square. We'll center its middle using transform. */
-  .score-marker {
-    position: absolute;
-    top: -50%;
-    left: 0%; /* We'll override via inline style: left: {score}%; */
-    width: 10px;
-    height: 20px;
-    background-color: #b8b2b2;
-    box-shadow: 0 0 4px rgba(0,0,0,0.5);
-    border-radius: 2px; /* slight corner rounding, optional */
-  }
-  
-  /* SELL / HOLD / BUY LABELS */
-  .score-labels {
-    position: absolute;
-    top: 1rem; 
-    width: 100%;
-    pointer-events: none;
-    font-size: 0.85rem;
-    color: #ccc;
-  }
-  
-  /* Place them at 0%, 50%, 100% */
-  .score-labels .label-sell {
-    position: absolute;
-    left: 0%;
-    transform: translateX(0);
-  }
-  .score-labels .label-hold {
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-  }
-  .score-labels .label-buy {
-    position: absolute;
-    left: 100%;
-    transform: translateX(-100%);
-  }
-  
-  /* CALL TO ACTION TEXT */
-  .call-to-action-text {
-    margin-top: 0.5rem;
-    font-size: 0.9rem;
-    color: var(--text-color); 
-    line-height: 1.4;
-    font-weight: 500;
-    text-align: center;
-  }
-  
-
-
-
-
-
-
-
 /***************************************
 * About Styles
 ***************************************/
@@ -643,8 +622,19 @@ body {
     margin-top: 4.5rem;
     min-height: 100vh;
 }
+
+@media (max-width: 768px) {
+    .doc-layout {
+      flex-direction: column;
+    }
   
- .doc-sidebar {
+    .doc-sidebar {
+        display: none;
+    }
+  
+}
+  
+.doc-sidebar {
     width: 240px; 
     border-right: 2px solid rgba(255, 255, 255, 0.252);
     padding: 2rem 2rem;
@@ -654,7 +644,7 @@ body {
     overflow-y: auto;
 }
   
-.doc-sidebar ul, ol {
+.doc-sidebar ul, .doc-section ul {
     list-style: none;
     margin: 0;
     padding: 0;
@@ -715,41 +705,7 @@ body {
 }
   
 
-  /***************************************
-   * Responsiveness
-   ***************************************/
-  @media (max-width: 768px) {
-    .doc-layout {
-      flex-direction: column;
-    }
-  
-    .doc-sidebar {
-      width: 100%;
-      height: auto;
-      position: static;
-      border-right: none;
-      border-bottom: 2px solid rgba(255, 255, 255, 0.252);
-    }
-  
-    .doc-sidebar ul {
-      display: flex;
-      gap: 1rem;
-      overflow-x: auto;
-      margin-bottom: 1rem;
-    }
-  
-    .doc-sidebar li {
-      margin-bottom: 0;
-    }
-  
-    .doc-content {
-      padding: 1.5rem;
-    }
-  
-    .doc-section h2 {
-      font-size: 1.4rem;
-    }
-  }
+
   
 
   
